@@ -1,11 +1,15 @@
 import "./App.css";
 import React, { Component } from "react";
-import NinjaInput from "./NinjaInput";
-import ItemInput from "./ItemInput";
+import NinjaInput from "./Components/NinjaInput";
+import ItemInput from "./Components/ItemInput";
+import TotalsInput from "./Components/TotalsInput";
 
 export default class App extends Component {
   state = {
-    ninjas: ["", ""],
+    ninjas: [
+      { ninja: "", balance: "" },
+      { ninja: "", balance: "" },
+    ],
     items: [
       { item: "", price: "" },
       { item: "", price: "" },
@@ -16,6 +20,22 @@ export default class App extends Component {
     total: "",
   };
 
+  //Change handlers for all form inputs
+  handleFormChange = (e) => {
+    e.preventDefault();
+    if (["item", "price"].includes(e.target.className)) {
+      let items = [...this.state.items];
+      items[e.target.dataset.id][e.target.className] = e.target.value;
+      this.setState({ items });
+    } else if (["ninja", "balance"].includes(e.target.className)) {
+      let ninjas = [...this.state.ninjas];
+      ninjas[e.target.dataset.id][e.target.className] = e.target.value;
+      this.setState({ ninjas });
+    } else {
+      this.setState({ [e.target.name]: e.target.value });
+    }
+  };
+
   //Ninja Handlers
   addNinja = (e) => {
     if (this.state.ninjas.length >= 10) {
@@ -23,7 +43,7 @@ export default class App extends Component {
     } else if (this.state.ninjas.length < 10) {
       e.preventDefault();
       this.setState((prevState) => ({
-        ninjas: [...prevState.ninjas, ""],
+        ninjas: [...prevState.ninjas, { ninja: "", balance: "" }],
       }));
     }
   };
@@ -36,12 +56,6 @@ export default class App extends Component {
       ninjas.splice(i, 1);
       this.setState({ ninjas });
     }
-  };
-
-  handleNinjaChange = (key, val) => {
-    let ninjas = [...this.state.ninjas];
-    ninjas[key] = val;
-    this.setState({ ninjas });
   };
 
   //Item Handlers
@@ -62,22 +76,6 @@ export default class App extends Component {
     }
   };
 
-  handleItemChange = (e) => {
-    e.preventDefault();
-    if (["item", "price"].includes(e.target.className)) {
-      let items = [...this.state.items];
-      items[e.target.dataset.id][e.target.className] = e.target.value;
-      this.setState({ items });
-    } else {
-      this.setState({ [e.target.name]: e.target.value });
-    }
-  };
-
-  handleTotalsChange = (e) => {
-    e.preventDefault();
-    this.setState({ [e.target.name]: e.target.value });
-  };
-
   render() {
     return (
       <div>
@@ -90,7 +88,7 @@ export default class App extends Component {
               <label htmlFor="ninja">Add up to 10 people to split</label>
               <NinjaInput
                 ninjas={this.state.ninjas}
-                handleNinjaChange={this.handleNinjaChange}
+                handleNinjaChange={this.handleFormChange}
                 handleDeleteNinja={this.deleteNinja}
               />
               <button onClick={this.addNinja}>Add Person</button>
@@ -100,47 +98,18 @@ export default class App extends Component {
               <ItemInput
                 items={this.state.items}
                 handleDeleteItem={this.deleteItem}
-                handleItemChange={this.handleItemChange}
+                handleItemChange={this.handleFormChange}
               />
               <button onClick={this.addItem}>Add Item</button>
             </fieldset>
             <fieldset className="input-totals">
-              <p>Subtotal, tax, gratuity & total</p>
-              <label htmlFor="subtotal">Subtotal: </label>
-              <input
-                type="number"
-                name="subtotal"
-                id="subtotal"
-                placeholder="Subtotal"
-                value={this.state.subtotal}
-                onChange={this.handleTotalsChange}
-              />
-              <label htmlFor="tax">Tax: </label>
-              <input
-                type="number"
-                name="tax"
-                id="tax"
-                placeholder="Tax"
-                value={this.state.tax}
-                onChange={this.handleTotalsChange}
-              />
-              <label htmlFor="gratuity">Gratuity: </label>
-              <input
-                type="number"
-                name="gratuity"
-                id="gratuity"
-                placeholder="Gratuity (Optional)"
-                value={this.state.gratuity}
-                onChange={this.handleTotalsChange}
-              />
-              <label htmlFor="total">Total: </label>
-              <input
-                type="number"
-                name="total"
-                id="total"
-                placeholder="Receipt Total"
-                value={this.state.total}
-                onChange={this.handleTotalsChange}
+              <label htmlFor="totals">Subtotal, Tax, Gratuity, and Total</label>
+              <TotalsInput
+                subtotal={this.state.subtotal}
+                tax={this.state.tax}
+                gratuity={this.state.gratuity}
+                total={this.state.total}
+                handleTotalsChange={this.handleFormChange}
               />
             </fieldset>
           </form>
